@@ -1,68 +1,82 @@
-# Implementation Plan — Family Shopping List
+# Implementation Plan — Collaborative Family Shopping List
 
-**Product name:** Family Shopping List
+Product name: Family Shopping List
 
-**One-sentence idea:** A collaborative web app where family members can add, manage, and get AI-suggested items for a shared shopping list in real-time.
+One-sentence idea:
+A collaborative web app where family members can manage a shared real‑time shopping list with AI‑assisted product suggestions.
 
-**End users:** Family members (parents, teens, adults) in a single household.
+End users:
+Household members (families, roommates) who share grocery shopping duties.
 
-**Problem:** Unstructured shopping coordination leads to forgotten items, duplicate purchases, and multiple trips to the store.
+Problem:
+Unclear communication leads to forgotten items and duplicate purchases, making grocery shopping inefficient.
 
 ## Required Product Components
 
-- **Backend:** Processes items, calls AI agent, manages list state
-- **Database:** Stores items, purchase history, family members
-- **Frontend:** Web interface for adding/checking/deleting items and receiving suggestions
+- **Backend**: FastAPI (Python) – handles list operations, user auth, and AI suggestions.
+- **Database**: PostgreSQL – stores user profiles, list items, purchase history.
+- **Frontend**: Web app (HTML/CSS/JS) – interactive UI, no Telegram dependency.
 
-**LLM Strategy:** Instead of paid APIs, the project will use OpenAI API (free tier available) or a local LLM via Ollama for product suggestions.
+Instead of paid APIs, the project will use:
+- **Qwen** (via the university VM setup from Lab 8) – free, no API cost, good for generating product suggestions.
 
-## Version 1 (Core Functioning Product)
+---
 
-Build a working shared shopping list. One core feature: add, view, and delete items with purchased status.
+## Version 1 – Core Feature: Shared Real‑Time List
 
-### Components
+A single shared list that all family members can edit instantly.
 
-- **Frontend:** Simple HTML/CSS/JS with form and list display
-- **Backend:** Flask with REST endpoints (POST /items, GET /items, PUT /items/id, DELETE /items/id)
-- **Database:** SQLite with items table (id, name, purchased boolean, timestamp)
+### Features
+- User registration & login
+- View the shared shopping list
+- Add items (name + quantity)
+- Delete items
+- Mark items as purchased (strikethrough + fade)
+- All changes visible to all users immediately (no refresh needed)
 
-### Workflow
+### Implementation
 
-1. User opens web app
-2. Types item name and clicks Add
-3. Item appears in list
-4. User checks checkbox to mark purchased
-5. User clicks delete to remove item
-6. Page refresh shows persistent data
+- **Frontend**: HTML/CSS/JS, served via Caddy
+- **Backend**:
+  - `POST /auth/register`, `POST /auth/login` (JWT)
+  - `GET /items` – get all items
+  - `POST /items` – add item
+  - `PATCH /items/{id}` – toggle purchased status
+  - `DELETE /items/{id}` – delete item
+- **Database**: `users` table, `items` table (list_id, name, quantity, purchased, added_by)
+- **Infrastructure**:
+  - Docker Compose: backend + postgres + caddy (static frontend)
+  - Deployed on university VM (port 42002)
 
-### Testing Checklist
+---
 
-- Add 3 items → all appear
-- Mark one as purchased → checkbox works
-- Delete one item → item removed
-- Refresh page → data persists
+## Version 2 – Improvements & AI Assistance
 
-## Version 2 (Improved + Deployed)
+Builds on Version 1, adding AI‑powered suggestions and usability enhancements.
 
-Improve usability based on TA feedback and add AI suggestions.
+### Added Features
+- **AI product suggestions** – when a user adds an item, Qwen suggests related items (e.g., “milk” → “butter, yogurt, cream”).
+- **Multiple lists** – create separate lists for different stores or events.
+- **Purchase history** – view and re‑add previously bought items.
+- **Improved UI** – categories, better mobile layout, quick‑add buttons.
 
-### New Features
+### Implementation Extras
 
-- **AI Agent:** When item added, call OpenAI API or local LLM to suggest 1 complementary product, show notification "Add [suggestion]?" with Yes/No
-- **Real-time updates:** WebSockets (Socket.IO) so all devices sync instantly
-- **Family member dropdown:** Mom/Dad/Child selector when adding item
-- **Purchase history:** New table purchased_items stores completed purchases with timestamp
+- **AI integration**:
+  - Backend calls Qwen Code API (`http://localhost:42005/v1`) with a prompt:  
+    *"Suggest 3 related grocery items for '{item}'. Return only JSON: {\"suggestions\": [\"...\"]}"*
+  - Suggestions appear in frontend as clickable chips.
+- **Additional API endpoints**:
+  - `GET /lists` – user’s lists
+  - `POST /lists` – create list
+  - `GET /history` – past items
+- **Frontend enhancements**: tabs for different lists, history panel, loading indicators.
 
-### Upgraded Components
+---
 
-- **Database:** PostgreSQL (Docker container) replaces SQLite
-- **Frontend:** Add Socket.IO client for real-time updates
-- **Deployment:** Docker Compose on Ubuntu 24.04 VM
+## Deployment (both versions)
 
-### Deployment Steps
-
-```bash
-git clone https://github.com/yourusername/se-toolkit-hackathon
-cd se-toolkit-hackathon
-echo "OPENAI_API_KEY=your_key_here" > .env
-docker-compose up -d --build
+- Dockerize all services (backend, postgres, caddy)
+- Run on university VM:
+  ```bash
+  docker compose --env-file .env.docker.secret up --build -d

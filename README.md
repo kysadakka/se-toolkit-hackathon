@@ -5,9 +5,7 @@ A collaborative web app where family members share a real‑time shopping list w
 ---
 
 ## Demo
-
-> *Screenshots would be placed here – showing registration form, shopping list with items, and AI suggestion buttons appearing after adding "milk".*
-
+> ![Family Shopping List Screenshot](https://raw.githubusercontent.com/kysadakka/se-toolkit-hackathon/9fdf075a1bb1fd3607d7a9452d534a4c50d3b6f8/Screenshot%202026-04-10%20at%2000.33.08.png)
 ---
 
 ## Product Context

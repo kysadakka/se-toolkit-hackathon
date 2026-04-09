@@ -32,14 +32,17 @@ def create_family(db: Session, name: str, user_id: int, password: str):
     db.add(family)
     db.flush()
     # Add owner as member
-    family.members.append(db.query(models.User).filter(models.User.id == user_id).first())
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    family.members.append(user)
+    # Set as user's active family
+    user.active_family_id = family.id
     db.commit()
     db.refresh(family)
     return family
 
 def join_family(db: Session, user_id: int, family_name: str, password: str):
     """Add user to an existing family with password verification."""
-    family = db.query(models.Family).filter(models.Family.name == family_name).first()
+    family = db.query(models.Family).filter(models.Family.name.ilike(family_name)).first()
     if not family:
         return None
     # Verify password
@@ -51,6 +54,8 @@ def join_family(db: Session, user_id: int, family_name: str, password: str):
     if user in family.members:
         return "already_member"
     family.members.append(user)
+    # Set as user's active family
+    user.active_family_id = family.id
     db.commit()
     db.refresh(family)
     return family

@@ -6,7 +6,7 @@ A collaborative web app where family members share a real‑time shopping list w
 
 ## Demo
 > ![Family Shopping List Screenshot1](https://raw.githubusercontent.com/kysadakka/se-toolkit-hackathon/9fdf075a1bb1fd3607d7a9452d534a4c50d3b6f8/Screenshot%202026-04-10%20at%2000.33.08.png)
-> ![Family Shopping List Screenshot2](https://raw.githubusercontent.com/kysadakka/se-toolkit-hackathon/blob/9d4f530c8595e1778beb59413d23289f1fdab366/Screenshot%202026-04-10%20at%2000.31.08.png)
+> ![Family Shopping List Screenshot2](https://raw.githubusercontent.com/kysadakka/se-toolkit-hackathon/9d4f530c8595e1778beb59413d23289f1fdab366/Screenshot%202026-04-10%20at%2000.31.08.png)
 ---
 
 ## Product Context

@@ -1,0 +1,19 @@
+# Secrets
+.env
+.env.*
+*.secret
+oauth_creds.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Docker
+*.log
+postgres_data/
+
+# IDE
+.vscode/
+.idea/

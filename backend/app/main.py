@@ -1,4 +1,6 @@
 import os
+import re
+import json
 import httpx
 from fastapi import FastAPI, Depends, HTTPException, status, Header
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +12,7 @@ from . import models, schemas, auth, crud
 
 app = FastAPI(title="Family Shopping List API")
 
-QWEN_API_URL = os.getenv("QWEN_API_URL", "http://localhost:42005/v1")
+QWEN_API_URL = os.getenv("QWEN_API_URL", "https://openrouter.ai/api/v1")
 
 app.add_middleware(
     CORSMiddleware,
@@ -84,7 +86,6 @@ async def get_ai_suggestions(item_name: str) -> List[str]:
             if resp.status_code == 200:
                 data = resp.json()
                 content = data["choices"][0]["message"]["content"].strip()
-                import json, re
                 # Strip markdown code blocks if present
                 content = re.sub(r'^```(?:json)?\s*', '', content)
                 content = re.sub(r'\s*```$', '', content)
@@ -139,7 +140,6 @@ def create_family(
     db: Session = Depends(get_db),
 ):
     family = crud.create_family(db, fam_data.name, user.id, fam_data.password)
-    # Reload user to get updated active_family_id
     user = db.query(models.User).filter(models.User.id == user.id).first()
     families = crud.get_user_families(db, user.id)
     return {
@@ -168,7 +168,6 @@ def join_family(
         raise HTTPException(status_code=401, detail="Wrong password")
     if result == "already_member":
         raise HTTPException(status_code=400, detail="Already a member")
-    # Reload user to get updated active_family_id
     user = db.query(models.User).filter(models.User.id == user.id).first()
     families = crud.get_user_families(db, user.id)
     return {
@@ -270,9 +269,7 @@ async def create_item(
     if not user.active_family_id:
         raise HTTPException(status_code=400, detail="No active family")
     created_item = crud.create_item(db, item_data, user.active_family_id)
-    # Get AI suggestions for this item
     suggestions = await get_ai_suggestions(item_data.name)
-    # Attach suggestions to response
     result = schemas.ItemOut(
         id=created_item.id,
         name=created_item.name,

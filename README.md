@@ -40,9 +40,7 @@ A shared shopping list that updates instantly for all family members. When someo
 
 ### Not yet implemented (future plans)
 - Quantity merging for duplicate items
-- Multiple shopping lists (e.g., for different stores)
-- Purchase history
-- Product categories
+- Telegram bot/mini-app for convenience
 - Improved mobile UI
 
 ---
